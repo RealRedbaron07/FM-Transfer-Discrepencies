@@ -1,0 +1,40 @@
+// DemoDataProvider.java
+import java.util.*;
+import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+public class DemoDataProvider implements TransferDataProvider {
+    private String csvPath;
+    private DateTimeFormatter df = DateTimeFormatter.ISO_LOCAL_DATE;
+
+    public DemoDataProvider(String csvPath) {
+        this.csvPath = csvPath;
+    }
+
+    @Override
+    public List<Transfer> fetchTransfers() {
+        List<Transfer> transfers = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(csvPath))) {
+            String header = br.readLine(); // skip header
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] cols = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                int playerId = Integer.parseInt(cols[0].trim());
+                String playerName = cols[1].trim();
+                String position = cols[2].trim();
+                String fromTeam = cols[3].trim();
+                String toTeam = cols[4].trim();
+                long transferFee = Long.parseLong(cols[5].trim());
+                long marketValue = Long.parseLong(cols[6].trim());
+                LocalDate date = LocalDate.parse(cols[7].trim(), df);
+                Transfer t = new Transfer(playerId, playerName, position, fromTeam, toTeam, transferFee, marketValue, date);
+                transfers.add(t);
+            }
+        } catch (Exception e) {
+            System.err.println("Error reading demo CSV: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return transfers;
+    }
+}

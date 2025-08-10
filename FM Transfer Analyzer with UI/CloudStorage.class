@@ -1,0 +1,50 @@
+// Simple cloud storage using localStorage + optional Firebase
+class CloudStorage {
+    constructor() {
+        this.isOnline = navigator.onLine;
+        this.localKey = 'fm_analyzer_data';
+    }
+    
+    async saveData(data) {
+        try {
+            // Always save locally first
+            localStorage.setItem(this.localKey, JSON.stringify({
+                ...data,
+                lastSaved: new Date().toISOString()
+            }));
+            
+            // Try cloud backup if online
+            if (this.isOnline && window.firebase) {
+                await this.saveToFirebase(data);
+            }
+            
+            return { success: true, location: 'local' };
+        } catch (error) {
+            console.error('Save failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    async loadData() {
+        try {
+            // Load from localStorage
+            const localData = localStorage.getItem(this.localKey);
+            if (localData) {
+                return JSON.parse(localData);
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Load failed:', error);
+            return null;
+        }
+    }
+    
+    async saveToFirebase(data) {
+        // Optional Firebase integration
+        if (window.firebase && window.firebase.firestore) {
+            const db = firebase.firestore();
+            await db.collection('user_data').doc(data.userId).set(data);
+        }
+    }
+}Error while getting decompiled source.

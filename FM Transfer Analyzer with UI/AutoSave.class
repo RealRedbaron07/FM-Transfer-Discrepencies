@@ -1,0 +1,59 @@
+// Auto-save functionality
+class AutoSave {
+    constructor() {
+        this.cloudStorage = new CloudStorage();
+        this.saveInterval = 30000; // 30 seconds
+        this.startAutoSave();
+    }
+    
+    startAutoSave() {
+        setInterval(() => {
+            this.saveCurrentState();
+        }, this.saveInterval);
+        
+        // Save on page unload
+        window.addEventListener('beforeunload', () => {
+            this.saveCurrentState();
+        });
+    }
+    
+    async saveCurrentState() {
+        if (players.length === 0) return;
+        
+        const userData = subscriptionManager.getUserInfo();
+        const saveData = {
+            players: players,
+            userInfo: userData,
+            lastActivity: new Date().toISOString(),
+            version: '1.0'
+        };
+        
+        await this.cloudStorage.saveData(saveData);
+    }
+    
+    async loadPreviousState() {
+        const savedData = await this.cloudStorage.loadData();
+        if (savedData && savedData.players) {
+            players = savedData.players;
+            showSuccessMessage(`Loaded ${players.length} players from previous session`);
+            return true;
+        }
+        return false;
+    }
+}
+
+// Initialize auto-save
+let autoSave;
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing initialization ...
+    
+    autoSave = new AutoSave();
+    
+    // Try to load previous data
+    autoSave.loadPreviousState().then(loaded => {
+        if (loaded) {
+            updateStats();
+            updatePlayersTable('all');
+        }
+    });
+});Error while getting decompiled source.

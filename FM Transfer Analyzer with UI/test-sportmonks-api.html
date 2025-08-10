@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportMonks API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0e1a;
+            color: #ffffff;
+        }
+        .test-section {
+            background: #1a1f2e;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #374151;
+        }
+        .btn {
+            background: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #357abd;
+        }
+        .btn-secondary {
+            background: #6b7280;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .error { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .info { background: rgba(74, 144, 226, 0.1); color: #4a90e2; }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #a1a1aa;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #374151;
+            border-radius: 4px;
+            background: #2a2f3e;
+            color: #ffffff;
+        }
+        .transfer-item {
+            border: 1px solid #374151;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #2a2f3e;
+        }
+        .transfer-header {
+            font-weight: bold;
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+        .transfer-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .detail-item {
+            font-size: 0.9em;
+        }
+        .detail-label {
+            color: #a1a1aa;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>SportMonks API Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>API Configuration</h2>
+        <div class="form-group">
+            <label>SportMonks API Token</label>
+            <input type="password" id="api-token" placeholder="Enter your SportMonks API token">
+        </div>
+        <button class="btn" onclick="testInitialization()">Test Initialization</button>
+        <button class="btn" onclick="testFetchTransfers()">Test Fetch Transfers</button>
+        <button class="btn btn-secondary" onclick="testFetchSeasons()">Test Fetch Seasons</button>
+        <div id="status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Filters</h2>
+        <div class="form-group">
+            <label>Season</label>
+            <select id="season-filter">
+                <option value="">All Seasons</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Date From</label>
+            <input type="date" id="date-from">
+        </div>
+        <div class="form-group">
+            <label>Date To</label>
+            <input type="date" id="date-to">
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script src="sportmonks-api.js"></script>
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function testInitialization() {
+            const token = document.getElementById('api-token').value;
+            if (!token) {
+                showStatus('Please enter an API token first', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Initializing SportMonks API...', 'info');
+                const success = await window.sportmonksAPI.initialize(token);
+                if (success) {
+                    showStatus('SportMonks API initialized successfully!', 'success');
+                } else {
+                    showStatus('Failed to initialize SportMonks API', 'error');
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function testFetchSeasons() {
+            const token = document.getElementById('api-token').value;
+            if (!token) {
+                showStatus('Please enter an API token first', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Fetching seasons...', 'info');
+                const seasons = await window.sportmonksAPI.fetchSeasons();
+                const seasonSelect = document.getElementById('season-filter');
+                
+                seasonSelect.innerHTML = '<option value="">All Seasons</option>';
+                seasons.forEach(season => {
+                    seasonSelect.innerHTML += `<option value="${season.id}">${season.name}</option>`;
+                });
+                
+                showStatus(`Successfully fetched ${seasons.length} seasons!`, 'success');
+            } catch (error) {
+                showStatus('Error fetching seasons: ' + error.message, 'error');
+            }
+        }
+
+        async function testFetchTransfers() {
+            const token = document.getElementById('api-token').value;
+            if (!token) {
+                showStatus('Please enter an API token first', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Fetching transfers...', 'info');
+                
+                const seasonFilter = document.getElementById('season-filter').value;
+                const dateFrom = document.getElementById('date-from').value;
+                const dateTo = document.getElementById('date-to').value;
+                
+                const filters = {};
+                if (seasonFilter) filters.season_id = seasonFilter;
+                if (dateFrom) filters.date_from = dateFrom;
+                if (dateTo) filters.date_to = dateTo;
+                
+                const result = await window.sportmonksAPI.fetchTransfers({
+                    page: 1,
+                    perPage: 10,
+                    filters: filters
+                });
+                
+                const resultsDiv = document.getElementById('results');
+                
+                resultsDiv.innerHTML = `
+                    <h3>Found ${result.transfers.length} transfers:</h3>
+                    <div style="max-height: 600px; overflow-y: auto;">
+                        ${result.transfers.map(transfer => `
+                            <div class="transfer-item">
+                                <div class="transfer-header">${transfer.player.name}</div>
+                                <div class="transfer-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">From:</span> ${transfer.sellingClub}
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">To:</span> ${transfer.buyingClub}
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Fee:</span> €${transfer.transferFee}M
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Age:</span> ${transfer.player.age}
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Position:</span> ${transfer.player.position}
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Date:</span> ${transfer.transferDate}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                showStatus(`Successfully fetched ${result.transfers.length} transfers!`, 'success');
+            } catch (error) {
+                showStatus('Error fetching transfers: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html> 

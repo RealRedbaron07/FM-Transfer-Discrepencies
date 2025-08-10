@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM Transfer Analyzer Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #0f1419 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8b 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a5f8b;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: #b8c5d1;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8b 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            border: 1px solid #3a5f8b;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4fc3f7;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            color: #b8c5d1;
+            font-size: 1.1em;
+        }
+
+        .analysis-section {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8b 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a5f8b;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4fc3f7;
+            padding-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .transfer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(15, 20, 25, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .transfer-table th,
+        .transfer-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #3a5f8b;
+        }
+
+        .transfer-table th {
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            color: #ffffff;
+            font-weight: bold;
+            border-bottom: 2px solid #4fc3f7;
+        }
+
+        .transfer-table tr:nth-child(even) {
+            background: rgba(30, 58, 95, 0.3);
+        }
+
+        .transfer-table tr:hover {
+            background: rgba(79, 195, 247, 0.1);
+        }
+
+        .discrepancy-high {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .discrepancy-low {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .position-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .position-gk { background: #e74c3c; }
+        .position-cb { background: #f39c12; }
+        .position-lb, .position-rb { background: #f1c40f; }
+        .position-dm { background: #9b59b6; }
+        .position-cm { background: #3498db; }
+        .position-am { background: #1abc9c; }
+        .position-lw, .position-rw { background: #e67e22; }
+        .position-st { background: #2ecc71; }
+
+        .premium-banner {
+            background: linear-gradient(45deg, #1e3a5f, #2d5a8b);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid #4fc3f7;
+        }
+
+        .premium-banner h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8b 100%);
+            color: white;
+            padding: 12px 25px;
+            border: 1px solid #4fc3f7;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2d5a8b 0%, #3a6b9f 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-premium {
+            background: linear-gradient(45deg, #1e3a5f, #4fc3f7);
+            border-color: #4fc3f7;
+        }
+
+        .btn-premium:hover {
+            background: linear-gradient(45deg, #2d5a8b, #5fd3ff);
+        }
+
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+            background: rgba(15, 20, 25, 0.8);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b8c5d1;
+            border: 1px solid #3a5f8b;
+        }
+
+        .regen-section {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8b 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a5f8b;
+        }
+
+        .regen-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #b8c5d1;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #3a5f8b;
+            border-radius: 5px;
+            background: rgba(15, 20, 25, 0.8);
+            color: #e8e8e8;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4fc3f7;
+            box-shadow: 0 0 5px rgba(79, 195, 247, 0.3);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: rgba(15, 20, 25, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #3a5f8b;
+        }
+
+        .feature-card h3 {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+
+        .feature-card ul {
+            color: #b8c5d1;
+            margin-left: 20px;
+        }
+
+        .feature-card li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .transfer-table {
+                font-size: 0.9em;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .regen-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ FM Transfer Analyzer Pro</h1>
+            <p>Advanced transfer market analysis for Football Manager 24</p>
+        </div>
+
+        <div class="premium-banner">
+            <h3>🚀 Upgrade to Premium</h3>
+            <p>Unlock unlimited analysis, advanced reports, and API access</p>
+            <a href="#" class="btn btn-premium">Upgrade Now - $9.99/month</a>
+            <a href="#" class="btn">Start Free Trial</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">67</div>
+                <div class="stat-label">Total Transfers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">€2.1B</div>
+                <div class="stat-label">Total Transfer Value</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">23.4</div>
+                <div class="stat-label">Average Age</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">15</div>
+                <div class="stat-label">Significant Discrepancies</div>
+            </div>
+        </div>
+
+        <div class="regen-section">
+            <h2 class="section-title">🔄 Automatic Regen Detection</h2>
+            <p style="color: #b8c5d1; margin-bottom: 20px;">
+                Automatically detect and add new regens from different saves with real-time transfer data integration.
+            </p>
+            
+            <div class="regen-form">
+                <div class="form-group">
+                    <label for="regen-name">Regen Name:</label>
+                    <input type="text" id="regen-name" placeholder="Enter regen name">
+                </div>
+                <div class="form-group">
+                    <label for="regen-age">Age:</label>
+                    <input type="number" id="regen-age" placeholder="Age" min="15" max="35">
+                </div>
+                <div class="form-group">
+                    <label for="regen-position">Position:</label>
+                    <select id="regen-position">
+                        <option value="">Select Position</option>
+                        <option value="GK">Goalkeeper</option>
+                        <option value="CB">Centre Back</option>
+                        <option value="LB">Left Back</option>
+                        <option value="RB">Right Back</option>
+                        <option value="DM">Defensive Midfielder</option>
+                        <option value="CM">Central Midfielder</option>
+                        <option value="AM">Attacking Midfielder</option>
+                        <option value="LW">Left Winger</option>
+                        <option value="RW">Right Winger</option>
+                        <option value="ST">Striker</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="regen-current-ability">Current Ability:</label>
+                    <input type="number" id="regen-current-ability" placeholder="CA" min="1" max="200">
+                </div>
+                <div class="form-group">
+                    <label for="regen-potential-ability">Potential Ability:</label>
+                    <input type="number" id="regen-potential-ability" placeholder="PA" min="1" max="200">
+                </div>
+                <div class="form-group">
+                    <label for="regen-club">Current Club:</label>
+                    <input type="text" id="regen-club" placeholder="Current club">
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-premium" onclick="addRegen()">Add Regen</button>
+                <button class="btn" onclick="importFromWebsite()">Import from Website</button>
+                <button class="btn" onclick="autoDetectRegens()">Auto-Detect Regens</button>
+            </div>
+        </div>
+
+        <div class="analysis-section">
+            <h2 class="section-title">📊 Market Trends Analysis</h2>
+            <div class="chart-container">
+                <p>📈 Interactive charts showing transfer trends by position, age, and league level</p>
+            </div>
+            <p><strong style="color: #4fc3f7;">Key Insights:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px; color: #b8c5d1;">
+                <li>Young talents (≤23) command 40% premium on average</li>
+                <li>User transfers show 25% higher variance than AI transfers</li>
+                <li>Premier League transfers average €45M vs €28M in other top leagues</li>
+                <li>Goalkeepers are undervalued by 15% compared to outfield players</li>
+            </ul>
+        </div>
+
+        <div class="analysis-section">
+            <h2 class="section-title">🚨 Transfer Discrepancies Detected</h2>
+            <table class="transfer-table">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Position</th>
+                        <th>Age</th>
+                        <th>Fair Value</th>
+                        <th>Paid</th>
+                        <th>Discrepancy</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Antony</strong></td>
+                        <td><span class="position-badge position-rw">RW</span></td>
+                        <td>23</td>
+                        <td>€35M</td>
+                        <td>€85M</td>
+                        <td class="discrepancy-high">+143%</td>
+                        <td>User</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mykhailo Mudryk</strong></td>
+                        <td><span class="position-badge position-lw">LW</span></td>
+                        <td>22</td>
+                        <td>€28M</td>
+                        <td>€88M</td>
+                        <td class="discrepancy-high">+214%</td>
+                        <td>User</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wesley Fofana</strong></td>
+                        <td><span class="position-badge position-cb">CB</span></td>
+                        <td>22</td>
+                        <td>€32M</td>
+                        <td>€75M</td>
+                        <td class="discrepancy-high">+134%</td>
+                        <td>User</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Erling Haaland</strong></td>
+                        <td><span class="position-badge position-st">ST</span></td>
+                        <td>23</td>
+                        <td>€120M</td>
+                        <td>€60M</td>
+                        <td class="discrepancy-low">-50%</td>
+                        <td>AI</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kevin De Bruyne</strong></td>
+                        <td><span class="position-badge position-am">AM</span></td>
+                        <td>32</td>
+                        <td>€85M</td>
+                        <td>€55M</td>
+                        <td class="discrepancy-low">-35%</td>
+                        <td>AI</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="analysis-section">
+            <h2 class="section-title">💰 Valuation Report</h2>
+            <div class="chart-container">
+                <p>📊 Detailed valuation breakdowns with position multipliers and age factors</p>
+            </div>
+            <p><strong style="color: #4fc3f7;">Valuation Model Features:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px; color: #b8c5d1;">
+                <li><strong>Position Multipliers:</strong> ST (1.4x), AM (1.25x), CM (1.15x), CB (1.0x), GK (0.85x)</li>
+                <li><strong>Age Factors:</strong> Young talents (≤23) get 1.3x boost, veterans (≥30) get 0.8x penalty</li>
+                <li><strong>Potential Bonus:</strong> High potential gap adds up to 1.6x multiplier</li>
+                <li><strong>Contract Impact:</strong> Short contracts (≤1 year) reduce value by 30%</li>
+            </ul>
+        </div>
+
+        <div class="analysis-section">
+            <h2 class="section-title">🎯 Premium Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>📈 Advanced Analytics</h3>
+                    <ul>
+                        <li>Historical transfer trends</li>
+                        <li>League-specific valuations</li>
+                        <li>Market bubble detection</li>
+                        <li>Predictive modeling</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Custom Reports</h3>
+                    <ul>
+                        <li>PDF export capabilities</li>
+                        <li>Excel data export</li>
+                        <li>Custom date ranges</li>
+                        <li>Club-specific analysis</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>🔌 API Access</h3>
+                    <ul>
+                        <li>RESTful API endpoints</li>
+                        <li>Real-time data access</li>
+                        <li>Webhook notifications</li>
+                        <li>Developer documentation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="#" class="btn btn-premium">Start Free Trial</a>
+            <a href="#" class="btn">View Pricing Plans</a>
+            <a href="#" class="btn">Contact Sales</a>
+        </div>
+    </div>
+
+    <script>
+        // Interactive features would be added here
+        console.log('FM Transfer Analyzer Pro - Web Version');
+        
+        function addRegen() {
+            const name = document.getElementById('regen-name').value;
+            const age = document.getElementById('regen-age').value;
+            const position = document.getElementById('regen-position').value;
+            const currentAbility = document.getElementById('regen-current-ability').value;
+            const potentialAbility = document.getElementById('regen-potential-ability').value;
+            const club = document.getElementById('regen-club').value;
+            
+            if (!name || !age || !position || !currentAbility || !potentialAbility || !club) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Here you would integrate with the Java backend
+            console.log('Adding regen:', { name, age, position, currentAbility, potentialAbility, club });
+            alert('Regen added successfully!');
+            
+            // Clear form
+            document.getElementById('regen-name').value = '';
+            document.getElementById('regen-age').value = '';
+            document.getElementById('regen-position').value = '';
+            document.getElementById('regen-current-ability').value = '';
+            document.getElementById('regen-potential-ability').value = '';
+            document.getElementById('regen-club').value = '';
+        }
+        
+        function importFromWebsite() {
+            const website = prompt('Enter the website URL for real-time transfer data:');
+            if (website) {
+                console.log('Importing from website:', website);
+                alert('Importing transfer data from ' + website + '...');
+                // Here you would implement web scraping functionality
+            }
+        }
+        
+        function autoDetectRegens() {
+            console.log('Auto-detecting regens from save files...');
+            alert('Scanning save files for new regens...');
+            // Here you would implement save file scanning
+        }
+
+        async function detectRegens() {
+            const fileInput = document.getElementById('save-file');
+            if (!fileInput.files.length) {
+                alert('Please select a save file.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const parser = new FMSaveFileParser();
+            const regens = await parser.parseSaveFile(file);
+
+            console.log('Detected regens:', regens);
+            alert(`Detected ${regens.length} regens.`);
+        }
+        
+        // Simulate real-time data updates
+        setInterval(() => {
+            const stats = document.querySelectorAll('.stat-number');
+            // Animate stats for demo purposes
+        }, 5000);
+    </script>
+</body>
+</html>

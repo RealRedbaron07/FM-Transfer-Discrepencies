@@ -1,0 +1,40 @@
+// Live transfer data integration
+class TransferDataAPI {
+    constructor() {
+        this.apiKey = 'your-api-key';
+        this.baseUrl = 'https://api.football-data.org/v4';
+    }
+
+    async fetchLiveTransfers(season = '2024') {
+        try {
+            const response = await fetch(`${this.baseUrl}/transfers?season=${season}`, {
+                headers: {
+                    'X-Auth-Token': this.apiKey
+                }
+            });
+
+            const data = await response.json();
+            return this.parseTransferData(data.transfers);
+        } catch (error) {
+            console.error('Failed to fetch live transfers:', error);
+            return [];
+        }
+    }
+
+    parseTransferData(transfers) {
+        return transfers.map(transfer => ({
+            playerName: transfer.person.name,
+            fromClub: transfer.fromTeam.name,
+            toClub: transfer.toTeam.name,
+            fee: transfer.fee || 'Free',
+            date: transfer.date,
+            type: transfer.type
+        }));
+    }
+
+    async getMarketComparison(playerName, position) {
+        // Get similar players and their transfer values
+        const similarPlayers = await this.findSimilarPlayers(playerName, position);
+        return this.analyzeMarketValue(similarPlayers);
+    }
+}Error while getting decompiled source.
