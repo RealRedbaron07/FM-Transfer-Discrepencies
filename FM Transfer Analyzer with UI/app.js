@@ -39,14 +39,23 @@ function handleDragOver(event) {
 
 function handleDrop(event) {
     event.preventDefault();
-    event.currentTarget.classList.remove('dragover');
+    event.stopPropagation();
+    
+    const uploadArea = document.querySelector('.upload-area');
+    uploadArea.classList.remove('dragover');
     
     const files = event.dataTransfer.files;
     if (files.length > 0) {
-        handleFileUpload(files[0]);
+        const file = files[0];
+        console.log('File dropped:', file.name, file.size, 'bytes');
+        
+        // Store the file for processing
+        window.pendingFile = file;
+        
+        // Start the progress animation
+        showProgress();
     }
 }
-
 function showUploadZone() {
     // Check if user can parse save files
     const canParse = subscriptionManager.canParseSaveFile();
@@ -68,7 +77,13 @@ function hideUploadZone() {
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (file) {
-        handleFileUpload(file);
+        console.log('File selected:', file.name, file.size, 'bytes');
+        
+        // Store the file for processing
+        window.pendingFile = file;
+        
+        // Start the progress animation
+        showProgress();
     }
 }
 
@@ -134,8 +149,66 @@ function showProgress() {
         
         if (progress >= 100) {
             clearInterval(interval);
+            // ADD THIS LINE - This was missing!
+            setTimeout(() => {
+                completeFileProcessing();
+            }, 500);
         }
     }, 800);
+}
+
+async function processPendingFile() {
+    try {
+        const file = window.pendingFile;
+        window.pendingFile = null; // Clear the pending file
+        
+        console.log('Processing file:', file.name);
+        
+        // Check subscription
+        const canParse = subscriptionManager.canParseSaveFile();
+        if (!canParse.allowed) {
+            hideProgress();
+            showUpgradePrompt('Save File Parsing', canParse.reason);
+            return;
+        }
+        
+        // Parse the actual save file
+        const saveData = await saveFileParser.parseSaveFile(file);
+        
+        // Load the parsed data
+        players = saveData.players || saveFileParser.generateRealisticSquad();
+        
+        // Update UI with parsed data
+        document.getElementById('squadTitle').textContent = `${file.name} - Squad Analysis`;
+        
+        showResults();
+        
+        // Track usage
+        subscriptionManager.addTransfer();
+        
+    } catch (error) {
+        console.error('Error processing pending file:', error);
+        hideProgress();
+        showError('File Processing Error', 'Could not process the save file. Loading demo data instead.');
+        loadDemoData();
+    }
+}
+
+function completeFileProcessing() {
+    try {
+        // If we have a pending file, process it
+        if (window.pendingFile) {
+            processPendingFile();
+        } else {
+            // Fallback to demo data
+            loadDemoData();
+        }
+    } catch (error) {
+        console.error('Error completing file processing:', error);
+        hideProgress();
+        showError('Processing Error', 'Failed to process the file. Loading demo data instead.');
+        loadDemoData();
+    }
 }
 
 function hideProgress() {
