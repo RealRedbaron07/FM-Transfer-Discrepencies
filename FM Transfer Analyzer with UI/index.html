@@ -3,245 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FM Transfer Analyzer Pro</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>FM Save Editor - Professional Football Manager Editor</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- FM24 Style Background -->
-    <div class="fm-background">
-        <!-- Navigation Bar -->
-        <nav class="fm-nav">
-            <div class="nav-brand">
-                <span class="nav-logo">⚽</span>
-                <span class="nav-title">FM Transfer Analyzer Pro</span>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div class="logo">⚽</div>
+                <div>
+                    <h1>Football Manager Save Editor</h1>
+                    <p class="subtitle">Professional Save File Editor for FM24, FM25 & FM26</p>
+                </div>
             </div>
-            <div class="nav-actions">
-                <button class="nav-btn" onclick="showPremiumModal()">
-                    <span class="premium-icon">👑</span> Go Pro
+            <div class="version-badge">v2.0 Pro</div>
+        </header>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-container">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <h2>Drop your FM save file here</h2>
+                        <p class="upload-hint">or click to browse</p>
+                        <label for="fileInput" class="btn btn-primary btn-large" id="chooseFileBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <span>Choose File</span>
+                        </label>
+                        <input type="file" id="fileInput" class="file-input" accept=".fm,.sav">
+                    </div>
+                    <div class="supported-formats">
+                        <div class="format-badge">✓ .fm files (FM24/25/26)</div>
+                        <div class="format-badge">✓ .sav files (Older versions)</div>
+                        <div class="format-badge">✓ Max 500MB</div>
+                    </div>
+                </div>
+
+                <div id="fileInfoDisplay" class="file-info-display">
+                    <div class="file-info-card">
+                        <div class="file-icon-large">📄</div>
+                        <div class="file-details">
+                            <h3 id="fileName"></h3>
+                            <div class="file-meta">
+                                <span id="fileSize"></span>
+                                <span class="separator">•</span>
+                                <span id="fileType"></span>
+                            </div>
+                            <div class="status-badge success">✓ Ready to Edit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading-container" id="loadingContainer">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p class="loading-text">Parsing your save file...</p>
+                <p class="loading-subtext">This may take a few moments</p>
+            </div>
+        </div>
+
+        <!-- Editor Section -->
+        <div class="editor-section" id="editorSection">
+            
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Warning Banner -->
+            <div class="alert alert-warning">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div>
+                    <strong>Important:</strong> Always backup your original save file before making changes!
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="tabs-container">
+                <button class="tab active" data-tab="overview">
+                    <span class="tab-icon">📊</span>
+                    <span>Overview</span>
+                </button>
+                <button class="tab" data-tab="club">
+                    <span class="tab-icon">🏆</span>
+                    <span>Club Info</span>
+                </button>
+                <button class="tab" data-tab="finances">
+                    <span class="tab-icon">💰</span>
+                    <span>Finances</span>
+                </button>
+                <button class="tab" data-tab="players">
+                    <span class="tab-icon">👤</span>
+                    <span>Players</span>
+                </button>
+                <button class="tab" data-tab="staff">
+                    <span class="tab-icon">👔</span>
+                    <span>Staff</span>
+                </button>
+                <button class="tab" data-tab="advanced">
+                    <span class="tab-icon">⚙️</span>
+                    <span>Advanced</span>
                 </button>
             </div>
-        </nav>
 
-        <!-- Main Content -->
-        <div class="fm-container">
-            <!-- Upload Section -->
-            <div class="upload-section" id="uploadSection">
-                <div class="hero-content">
-                    <h1 class="hero-title">
-                        <span class="gradient-text">Analyze Your Squad</span>
-                        <span class="hero-subtitle">Professional transfer analysis for Football Manager</span>
-                    </h1>
-                    
-                    <div class="hero-actions">
-                        <button class="cta-btn primary" onclick="loadDemoData()">
-                            <span class="btn-icon">🚀</span>
-                            <span class="btn-text">
-                                <strong>Try Demo Squad</strong>
-                                <small>Liverpool FC Analysis</small>
-                            </span>
-                        </button>
-                        
-                        <button class="cta-btn secondary" onclick="showUploadZone()">
-                            <span class="btn-icon">📁</span>
-                            <span class="btn-text">
-                                <strong>Upload Save File</strong>
-                                <small>Analyze your squad</small>
-                            </span>
-                        </button>
-                    </div>
-
-                    <div class="features-preview">
-                        <div class="feature-item">
-                            <span class="feature-icon">📊</span>
-                            <span>Squad Valuation</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">⭐</span>
-                            <span>Player Ratings</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">💰</span>
-                            <span>Market Analysis</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">🎯</span>
-                            <span>Transfer Insights</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upload Zone (Hidden) -->
-                <div class="upload-zone" id="uploadZone" style="display: none;">
-                    <div class="upload-area">
-                        <div class="upload-icon">📁</div>
-                        <h3>Drop your save file here</h3>
-                        <p>Supports .fm, .save, and .dat files</p>
-                        <input type="file" id="fileInput" accept=".fm,.save,.dat" style="display: none;">
-                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                            Choose File
-                        </button>
-                    </div>
-                    <button class="back-link" onclick="hideUploadZone()">← Back to options</button>
-                </div>
+            <!-- Tab Contents -->
+            <div class="tab-content active" id="overviewTab">
+                <h2 class="section-title">Save File Overview</h2>
+                <div class="overview-grid" id="overviewData"></div>
             </div>
 
-            <!-- Progress Section -->
-            <div class="progress-section" id="progressSection" style="display: none;">
-                <div class="progress-card">
-                    <div class="progress-icon">⚙️</div>
-                    <h2>Analyzing Squad...</h2>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <p id="progressText">Loading player data...</p>
-                </div>
+            <div class="tab-content" id="clubTab">
+                <h2 class="section-title">Club Information</h2>
+                <div class="data-grid" id="clubData"></div>
             </div>
 
-            <!-- Results Section -->
-            <div class="results-section" id="resultsSection" style="display: none;">
-                <!-- Header -->
-                <div class="results-header">
-                    <div class="header-left">
-                        <h1 id="squadTitle">Liverpool FC Squad Analysis</h1>
-                        <p class="header-subtitle">Complete squad breakdown and market analysis</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="action-btn" onclick="loadDemoData()">
-                            🔄 New Analysis
-                        </button>
-                        <button class="action-btn" onclick="goBack()">
-                            ← Back
-                        </button>
-                    </div>
-                </div>
+            <div class="tab-content" id="financesTab">
+                <h2 class="section-title">Financial Management</h2>
+                <div class="data-grid" id="financesData"></div>
+            </div>
 
-                <!-- Stats Grid -->
-                <div class="stats-grid">
-                    <div class="stat-card primary">
-                        <div class="stat-icon">👥</div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="totalPlayers">21</div>
-                            <div class="stat-label">Squad Size</div>
-                        </div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="stat-icon">💰</div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="totalValue">€850M</div>
-                            <div class="stat-label">Total Value</div>
-                        </div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="stat-icon">📅</div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="avgAge">25.2</div>
-                            <div class="stat-label">Avg Age</div>
-                        </div>
-                    </div>
-                    <div class="stat-card info">
-                        <div class="stat-icon">⭐</div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="starPlayers">8</div>
-                            <div class="stat-label">Star Players</div>
-                        </div>
-                    </div>
+            <div class="tab-content" id="playersTab">
+                <h2 class="section-title">Player Database</h2>
+                <div class="search-container">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="playerSearch" class="search-input" placeholder="Search players by name...">
                 </div>
+                <div class="players-grid" id="playersData"></div>
+            </div>
 
-                <!-- Filter Tabs -->
-                <div class="filter-tabs">
-                    <button class="tab-btn active" onclick="showTab('all', this)">
-                        All Players
-                    </button>
-                    <button class="tab-btn" onclick="showTab('valuable', this)">
-                        Most Valuable
-                    </button>
-                    <button class="tab-btn" onclick="showTab('young', this)">
-                        Young Talents
-                    </button>
-                    <button class="tab-btn" onclick="showTab('contracts', this)">
-                        Contracts Expiring
-                    </button>
-                </div>
+            <div class="tab-content" id="staffTab">
+                <h2 class="section-title">Coaching Staff</h2>
+                <div class="data-grid" id="staffData"></div>
+            </div>
 
-                <!-- Players Table -->
-                <div class="table-container">
-                    <table class="players-table">
-                        <thead>
-                            <tr>
-                                <th>Player</th>
-                                <th>Age</th>
-                                <th>Position</th>
-                                <th>CA</th>
-                                <th>PA</th>
-                                <th>Value</th>
-                                <th>Contract</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="playersTableBody">
-                            <!-- Players will be populated here -->
-                        </tbody>
-                    </table>
+            <div class="tab-content" id="advancedTab">
+                <h2 class="section-title">Advanced Settings</h2>
+                <div class="alert alert-danger">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <div>
+                        <strong>Warning:</strong> Modifying these settings may corrupt your save file!
+                    </div>
                 </div>
+                <div class="data-grid" id="advancedData"></div>
+            </div>
 
-                <!-- Export Actions -->
-                <div class="export-actions">
-                    <button class="export-btn" onclick="exportToCSV()">
-                        📄 Export CSV
-                    </button>
-                    <button class="export-btn premium" onclick="showPremiumModal()">
-                        👑 Premium Report
-                    </button>
-                </div>
+            <!-- Action Buttons -->
+            <div class="action-controls">
+                <button class="btn btn-secondary" id="resetBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    <span>Reset Changes</span>
+                </button>
+                <button class="btn btn-success" id="saveBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    <span>Save Changes</span>
+                </button>
+                <button class="btn btn-primary" id="downloadBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Download Save</span>
+                </button>
+                <button class="btn btn-outline" id="newFileBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span>Load New File</span>
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Premium Modal -->
-    <div class="modal-overlay" id="premiumModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closePremiumModal()">×</button>
-            <div class="modal-header">
-                <h2>🚀 Unlock Premium Features</h2>
-                <p>Get the most out of your FM experience</p>
-            </div>
-            <div class="premium-features">
-                <div class="feature">✅ Unlimited squad analysis</div>
-                <div class="feature">✅ Advanced transfer recommendations</div>
-                <div class="feature">✅ Contract negotiation insights</div>
-                <div class="feature">✅ Market value predictions</div>
-                <div class="feature">✅ Custom scouting reports</div>
-                <div class="feature">✅ Export to Excel/PDF</div>
-            </div>
-            <div class="pricing-plans">
-                <div class="plan">
-                    <div class="plan-name">Monthly</div>
-                    <div class="plan-price">$9.99</div>
-                    <button class="plan-btn">Choose Plan</button>
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p><strong>FM Save Editor v2.0</strong></p>
+                    <p class="footer-disclaimer">Not affiliated with Sports Interactive or SEGA. Educational purposes only.</p>
                 </div>
-                <div class="plan featured">
-                    <div class="plan-badge">Most Popular</div>
-                    <div class="plan-name">Yearly</div>
-                    <div class="plan-price">$99.99</div>
-                    <div class="plan-savings">Save 17%</div>
-                    <button class="plan-btn">Choose Plan</button>
+                <div class="footer-links">
+                    <a href="https://ko-fi.com" target="_blank" class="footer-link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        Support Development
+                    </a>
+                    <a href="https://github.com" target="_blank" class="footer-link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
                 </div>
             </div>
-        </div>
+        </footer>
     </div>
 
-    <script src="app.js"></script>
-
-    <!-- Stripe Integration -->
-<script src="https://js.stripe.com/v3/"></script>
-
-<!-- Load our new modules -->
-<script src="saveFileParser.js"></script>
-<script src="subscriptionManager.js"></script>
-<script src="app.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
